@@ -1,0 +1,31 @@
+@"
+# 🔐 Secrets
+.env
+.env.*
+.env.local
+.env.production
+.env.development
+firebase-adminsdk.json
+serviceAccountKey.json
+*.key
+*.pem
+*.p12
+*.json
+
+# ⚙️ Node / Build
+node_modules/
+.next/
+dist/
+coverage/
+out/
+
+# 🧪 Logs / Temp
+logs/
+*.log
+
+# 💻 Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+"@ | Out-File -Encoding utf8 .gitignore

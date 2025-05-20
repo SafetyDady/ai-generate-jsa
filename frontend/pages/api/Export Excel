@@ -1,0 +1,50 @@
+// ✅ pages/api/✅ Export Excel
+
+import ExcelJS from 'exceljs';
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).end();
+
+  const { siteName, areaName, jobTitle, steps } = req.body;
+
+  try {
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet('JSA Report');
+
+    sheet.columns = [
+      { header: 'Step Description', key: 'text', width: 30 },
+      { header: 'Job Type', key: 'jobType', width: 20 },
+      { header: 'Step Type', key: 'type', width: 10 },
+      { header: 'Hazard', key: 'hazard', width: 25 },
+      { header: 'Control', key: 'control', width: 30 },
+      { header: 'PPE', key: 'ppe', width: 25 },
+    ];
+
+    sheet.addRow([]);
+    sheet.addRow(['Site Name:', siteName]);
+    sheet.addRow(['Area Name:', areaName]);
+    sheet.addRow(['Job Title:', jobTitle]);
+    sheet.addRow([]);
+
+    steps.forEach(step => {
+      sheet.addRow({
+        text: step.text,
+        jobType: step.jobType,
+        type: step.type,
+        hazard: step.hazard,
+        control: step.control,
+        ppe: step.ppe
+      });
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    res.setHeader('Content-Disposition', 'attachment; filename=jsa-export.xlsx');
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(buffer);
+
+  } catch (err) {
+    console.error('Export Excel Error:', err);
+    res.status(500).json({ error: '❌ Export Failed' });
+  }
+}
+
