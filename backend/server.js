@@ -4,7 +4,7 @@ import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import admin from 'firebase-admin';
 
-import generate from './routes/generate.js';
+import generate from './routes/generateJSA.js';
 
 dotenv.config();
 
