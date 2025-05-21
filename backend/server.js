@@ -1,12 +1,9 @@
-// ✅ backend/server.js (แก้ GSA → JSA ทั้งหมด)
-
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import admin from 'firebase-admin';
 
-import generateJSA from './routes/generateJSA.js';
 import saveJSA from './routes/saveJSA.js';
 import exportJSA from './routes/exportJSA.js';
 
@@ -31,7 +28,6 @@ if (!admin.apps.length) {
 export const db = admin.firestore();
 
 // ✅ Routes
-app.use('/api/generate-jsa', generateJSA);
 app.use('/api/save-jsa', saveJSA);
 app.use('/api/export-jsa', exportJSA);
 
