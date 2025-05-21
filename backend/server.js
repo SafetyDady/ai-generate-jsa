@@ -4,6 +4,8 @@ import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import admin from 'firebase-admin';
 
+import generate from './routes/generate.js';
+
 dotenv.config();
 
 const app = express();
@@ -21,18 +23,12 @@ if (!admin.apps.length) {
   });
 }
 
-// ✅ Firestore Instance Export
 export const db = admin.firestore();
 
-// ✅ Routes (ยังไม่เปิดใช้งานเพราะยังไม่มีไฟล์จริง)
-// import generateJSA from './routes/generateJSA.js';
-// import saveJSA from './routes/saveJSA.js';
-// import exportJSA from './routes/exportJSA.js';
-// app.use('/api/generate-jsa', generateJSA);
-// app.use('/api/save-jsa', saveJSA);
-// app.use('/api/export-jsa', exportJSA);
+// ✅ Routes
+app.use('/api/generate', generate);
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`✅ JSA Backend API running on port ${PORT}`);
 });
