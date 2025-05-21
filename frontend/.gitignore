@@ -1,4 +1,3 @@
-@"
 # 🔐 Secrets
 .env
 .env.*
@@ -10,7 +9,6 @@ serviceAccountKey.json
 *.key
 *.pem
 *.p12
-*.json
 
 # ⚙️ Node / Build
 node_modules/
@@ -28,4 +26,3 @@ logs/
 .idea/
 .DS_Store
 Thumbs.db
-"@ | Out-File -Encoding utf8 .gitignore
