@@ -1,29 +1,35 @@
-// backend/routes/generate.js
+// backend/routes/generateJSA.js
 import express from "express";
 import OpenAI from "openai";
 
 const router = express.Router();
 const USE_MOCK = false;
 
-// ✅ ใช้ OpenAI v4
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// 🧠 Function สร้าง Prompt จาก Step
+// 📌 Prompt ใหม่ที่แม่นยำ
 const createPrompt = (step) => {
   return `
-คุณคือผู้เชี่ยวชาญด้านความปลอดภัย จงวิเคราะห์ขั้นตอนงานและสร้างรายการ:
-1. อันตรายที่อาจเกิดขึ้น (Hazard)
-2. วิธีควบคุม (Control)
-3. อุปกรณ์ป้องกันภัยส่วนบุคคล (PPE)
+คุณคือผู้เชี่ยวชาญด้านความปลอดภัยในงานก่อสร้าง
+
+กรุณาตอบกลับโดยใช้รูปแบบนี้เท่านั้น:
+Hazard: [เขียนเฉพาะรายการอันตราย]
+Control: [เขียนเฉพาะวิธีควบคุม]
+PPE: [เขียนเฉพาะอุปกรณ์ป้องกันภัยส่วนบุคคล]
 
 Main Step: ${step.mainStep || "ไม่ระบุ"}
 Sub Step: ${step.subStep || "ไม่ระบุ"}
 `;
 };
 
-// ✅ Route: POST /api/generate
+function extract(text, label) {
+  const regex = new RegExp(`${label}\\s*[:：]([^\\n]*)`, "i");
+  const match = text.match(regex);
+  return match ? match[1].trim() : "";
+}
+
 router.post("/", async (req, res) => {
   const { steps } = req.body;
 
@@ -39,13 +45,11 @@ router.post("/", async (req, res) => {
     if (USE_MOCK) {
       results.push({
         mainStep: step.mainStep,
-        hazards: [
-          {
-            hazard: "ตัวอย่างอันตราย",
-            control: "ตัวอย่างวิธีควบคุม",
-            ppe: "หมวกนิรภัย, รองเท้ากันลื่น",
-          },
-        ],
+        hazards: [{
+          hazard: "ตัวอย่างอันตราย",
+          control: "วิธีควบคุมตัวอย่าง",
+          ppe: "หมวกนิรภัย, ถุงมือ",
+        }],
       });
     } else {
       try {
@@ -58,7 +62,7 @@ router.post("/", async (req, res) => {
           temperature: 0.3,
         });
 
-        const aiText = chat.choices[0].message.content;
+        const aiText = chat.choices[0].message.content || "";
 
         const parsed = {
           hazard: extract(aiText, "Hazard"),
@@ -71,7 +75,7 @@ router.post("/", async (req, res) => {
           hazards: [parsed],
         });
       } catch (err) {
-        console.error("❌ OpenAI error:", err.message);
+        console.error("❌ OpenAI Error:", err.message);
         results.push({
           mainStep: step.mainStep,
           hazards: [{ hazard: "Error", control: "Error", ppe: "Error" }],
@@ -82,12 +86,5 @@ router.post("/", async (req, res) => {
 
   res.json({ success: true, data: results });
 });
-
-// 🔍 ฟังก์ชันช่วยแยกข้อความ Hazard, Control, PPE
-function extract(text, label) {
-  const regex = new RegExp(`${label}\\s*[:：]([^\\n]*)`, "i");
-  const match = text.match(regex);
-  return match ? match[1].trim() : "";
-}
 
 export default router;
